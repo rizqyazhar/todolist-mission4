@@ -5,5 +5,5 @@
 @tailwind utilities;
 
 body {
-    @apply font-Inter bg-red-50;
+    @apply max-w-md mx-auto font-Inter bg-base text-primary-text;
 }
