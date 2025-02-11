@@ -15,7 +15,8 @@ module.exports = {
       'tertiary': '#E5E1DA',
       'whitesmoke': '#F5F5F5',
       'primary-text': '#1E201E',
-      'secondary-text': '#697565'
+      'secondary-text': '#697565',
+      'star': '#FBA518'
     },
     extend: {},
     fontFamily: {

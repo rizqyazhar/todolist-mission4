@@ -1,96 +1,83 @@
-// INPUT NEW TASK
-const formInput = document.querySelector('#form-input')
-const taskInput = document.querySelector('#task-input');
-const submitTask = document.querySelector('#submit-task');
-const dateInput = document.querySelector('#date');
-const priorityInput = document.querySelector('#priority');
-const threeStar = document.querySelector('#three-star');
-const twoStar = document.querySelector('#two-star');
-const oneStar = document.querySelector('#one-star');
+// STAR PRIORITY
+const priorityStar = {
+    threeStar: `<i class="ri-star-fill text-star"></i><i class="ri-star-fill text-star"></i><i class="ri-star-fill text-star"></i>`,
+    twoStar: `<i class="ri-star-fill text-star"></i><i class="ri-star-fill text-star"></i><i class="ri-star-line text-star"></i>`,
+    oneStar: `<i class="ri-star-fill text-star"></i><i class="ri-star-line text-star"></i><i class="ri-star-line text-star"></i>`
+}
 
-let todayTask = [];
-let previousTask = [];
-let futureTask = [];
-
-const addTask = (data) => {
-    if(data.hari === 'today') {
-        todayTask = [...todayTask, data];
-    } else if (data.hari === 'yesterday') {
-        previousTask = [...previousTask, data];
-    } else {
-        futureTask = [...futureTask, data];
+class Task {
+    constructor(text, date, priority) {
+        this.text = text;
+        this.date = date;
+        this.priority = priority;
     }
 }
 
-const rowTask = `<div class="w-full h-12 px-5 py-0.5 rounded-md bg-red-100 flex items-center">
-                        <div class="w-full flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-4 h-4 rounded-full bg-transparent border border-red-900 cursor-pointer"></div>
-                                    <div class="flex flex-col  cursor-default">
-                                        <span id="text-task" class="text-sm font-medium">Build login page</span>
-                                        <span id="date-task" class="text-xs font-light text-slate-500">30/01/2025</span>
-                                    </div>
-                                </div>
-                                <div id="three-star">
-                                    <i class="ri-star-fill text-yellow-400"></i>
-                                    <i class="ri-star-fill text-yellow-400"></i>
-                                    <i class="ri-star-fill text-yellow-400"></i>
-                                </div>
-                            </div>    
-                        </div>
-                    </div>`;
-
-const displayTask = () => {
-    const previousBox = document.querySelector('#previous-box');
-    const todayBox = document.querySelector('#today-box');
-    const futureBox = document.querySelector('#future-box');
-
-    previousTask.forEach(() => {
-        previousBox.innerHTML = rowTask;
-    });
-
-    todayTask.forEach(() => {
-        todayBox.innerHTML = rowTask;
-    });
-    futureTask.forEach(() => {
-        futureBox.innerHTML = rowTask;
-    });
-}
-
-function collectData () {
-    const taskInputValue = taskInput.value;
+const addTaskToRow = (task) => {
+    const newDateInput = new Date(task.date); 
+    const dateInputNum = newDateInput.getTime();
+  
     const today = new Date().toISOString().split("T")[0];
-    const todayAsNumber = new Date(today).getTime();
-    const dateInputValue = dateInput.valueAsNumber;
-    const priorityInputValue = priorityInput.value;
+    const newToday = new Date(today);
+    const todayNum = newToday.getTime();
 
-    formInput.reset();
-    
-    if (!!taskInputValue && !!dateInputValue && !!priorityInputValue) {
-        if (dateInputValue === todayAsNumber) {
-            addTask(
-                {task: taskInputValue, date: dateInputValue, prior: priorityInputValue, hari: 'today'}
-            );
-        } else if (dateInputValue < todayAsNumber) {
-            addTask(
-                {task: taskInputValue, date: dateInputValue, prior: priorityInputValue, hari: 'yesterday'}
-            );
+    const box = document.querySelector('#task-box');
+    const completedBox = document.querySelector('#completed-box');
+    const rowTask = document.createElement('div');
+    rowTask.className = 'row-task w-full h-12 px-5 py-0.5 rounded-md flex items-center bg-secondary';
+    rowTask.innerHTML = `<div class="w-full flex items-center justify-between">
+                            <div class="info flex items-center gap-3">
+                                <div>
+                                    <input name="checkTask" class="check-task" type="checkbox">
+                                </div>
+                                <div class="flex flex-col  cursor-default">
+                                    <span class="text-sm font-medium">${task.text}</span>
+                                    <span class="text-xs font-light">${task.date}</span>
+                                </div>
+                            </div>
+                            <div>${task.priority === 'low' ? priorityStar.oneStar : task.priority === 'medium' ? priorityStar.twoStar : priorityStar.threeStar}</div>
+                            </div>`;
+
+    box.appendChild(rowTask);
+
+    const checkBox = rowTask.querySelector('.check-task');
+    checkBox.addEventListener('change', () => {
+        if (checkBox.checked) {
+            rowTask.style.textDecoration = 'line-through';
+            rowTask.style.opacity = '0.5';
+            completedBox.appendChild(rowTask);
         } else {
-            addTask(
-                {task: taskInputValue, date: dateInputValue, prior: priorityInputValue, hari: 'tomorrow'}
-            );
+            rowTask.style.textDecoration = 'none';
+            rowTask.style.opacity = '1';
+            box.appendChild(rowTask);
         }
-    }
+    });
 }
 
-formInput.addEventListener('submit', (e) => {
+document.querySelector('#form-input').addEventListener('submit', (e) => {
     e.preventDefault();
-    collectData();
-    displayTask();
-    console.log(todayTask);
-    console.log(previousTask);
-    console.log(futureTask);
-});
+    
+    const text = document.querySelector('#input-task').value;
+    const priority = document.querySelector('#priority').value;
+    const date = document.querySelector('#date').value;
+    
+    const task = new Task(text, date, priority);
+    
+    if (!text || !priority || !date) {
+        alert('Please fill all fields');
+        return;
+    } 
+    addTaskToRow(task);
+    document.querySelector('#form-input').reset();
+})
+
+document.querySelector('#clear-btn').addEventListener('click', () => {
+    const rowTask = document.querySelectorAll('.row-task');
+    rowTask.forEach((e) => {
+        e.remove();
+    })
+})
+
 
 
 
